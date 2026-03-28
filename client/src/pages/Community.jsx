@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { dummyGenerations } from '../assets/assets'
 import { Loader2Icon } from 'lucide-react'
+import ProjectCard from '../components/ProjectCard'
 
 const Community = () => {
 
@@ -24,7 +25,7 @@ const Community = () => {
     </div>
 
   ) : ( 
-    <div className='max-h-screen text-white p-6 md:p-12 my-28'>
+    <div className='min-h-screen text-white p-6 md:p-12 my-28'>
       <div className='max-w-6xl mx-auto'>
         <header className='mb-12'>
           <h1 className='text-3xl md:text-4xl font-semibold mb-4'>Community</h1>
@@ -34,7 +35,7 @@ const Community = () => {
         <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
           {projects.map((project)=>(
             <div>
-              {project.productName}
+              <ProjectCard key={project.id} gen={project} setGeneration={setProjects} forCommunity={true}/>
             </div>
           ))}
         </div>
