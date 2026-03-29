@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { dummyGenerations } from '../assets/assets'
 import ProjectCard from '../components/ProjectCard'
-import { Loader2Icon } from 'lucide-react'
+import { Loader2Icon, Underline } from 'lucide-react'
 
 const MyGenerations = () => {
 
@@ -39,6 +39,16 @@ const MyGenerations = () => {
             </div>
           ))}
         </div>
+
+        {generations.length === 0 && (
+          <div className='text-center py-20 bg-white/5 rounded-xl border border-white/10'>
+            <h3 className='text-xl font-medium mb-2'>No generations yet</h3>
+            <p className='text-gray-400 mb-6'>Start creating stunning product photos today</p>
+            <p className='underline text-sm cursor-pointer' onClick={()=>window.location.href = '/generate'}>
+              Create new generation
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
