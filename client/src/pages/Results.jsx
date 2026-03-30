@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { dummyGenerations } from '../assets/assets'
-import { Loader2Icon, RefreshCwIcon } from 'lucide-react'
+import { ImageIcon, Loader2Icon, RefreshCwIcon, SparkleIcon, VideoIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { GhostButton, PrimaryButton } from '../components/Buttons'
 
 const Results = () => {
 
@@ -16,6 +17,10 @@ const Results = () => {
     }, 2000);
   }
 
+  const handleGenerateVideo = async () => {
+    setIsGenerating(true)
+  }
+
   useEffect(()=>{
     fetchProjectData()
   }, [])
@@ -26,7 +31,7 @@ const Results = () => {
     </div>
   ) : (
     <div className='min-h-screen text-white p-6 md:p-12 mt-20'>
-      <div className='max-w6xl mx-auto'>
+      <div className='max-w-6xl mx-auto'>
         <header className='flex justify-between items-center mb-8 px-8'>
           <h1 className='text-2xl md:text-3xl font-medium'>Generation Result</h1>
           <Link className='flex items-center gap-2 text-sm btn-secondary'>
@@ -35,6 +40,71 @@ const Results = () => {
           </Link>
         </header>
 
+        {/* ----------grid layout----------- */}
+        <div className='grid lg:grid-cols-3 gap-8'>
+          {/* Main result display */}
+          <div className='lg:col-span-2 space-y-6'>
+            <div className='glass-panel inline-block p-2 rounded-2xl'>
+              <div className={`${project?.aspectRatio === '9:16' ? 'aspect-9/16' : 'aspect-video'} sm:max-h-200 rounded-xl bg-gray-900 overflow-hidden relative`}>
+                {project?.generatedVideo ? (
+                  <video src={project.generatedVideo} controls autoPlay muted loop className='w-full h-full object-cover'/>
+                ) : (
+                  <img src={project.generatedImage} alt="Generated Result" className='w-full h-full object-cover'/>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ---------------Sidebar Actions------------- */}
+          <div className='space-y-2 flex flex-col gap-2'>
+            {/* download buttons */}
+            <div className='glass-panel p-6 rounded-2xl'>
+              <h3 className='text-xl font-semibold mb-4'>Actions</h3>
+              <div className='flex flex-col gap-3'>
+                <a href={project.generatedImage} download>
+                  <GhostButton disabled={!project.generatedImage} className='w-full justify-center rounded-md py-3 disabled:opacity-50 disabled:cursor-not-allowed'>
+                  <ImageIcon className='size-4.5' />
+                  Download Image
+                  </GhostButton>
+                </a>
+                <a href={project.generatedVideo} download>
+                  <GhostButton disabled={!project.generatedVideo} className='w-full justify-center rounded-md py-3 disabled:opacity-50 disabled:cursor-not-allowed'>
+                  <VideoIcon className='size-4.5' />
+                  Download Video
+                  </GhostButton>
+                </a>
+              </div>
+            </div>
+
+            {/* generate video button */}
+            <div className='glass-panel p-6 rounded-2xl relative overflow-hidden'>
+                <div className='absolute top-0 right-0 p-4 opacity-10'>
+                  <VideoIcon className='size-24'/>
+                </div>
+                <h3 className='text-xl font-semibold mb-2'>Video Magic</h3>
+                <p className='text-gray-400 text-sm mb-6'>Turn this static image into a dyanmic video for social media.</p>
+                {!project.generatedVideo ? (
+                  <PrimaryButton onClick={handleGenerateVideo} disabled={isGenerating} className='w-full'>
+                    {isGenerating ? (
+                      <>
+                        Generating Video...
+                      </>
+                    ) : (
+                      <>
+                      <SparkleIcon className='size-4'/>
+                        Generate Video
+                      </>
+                    )}
+                  </PrimaryButton>
+                ) : (
+                  <div className='p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-center text-sm font-medium'> 
+                    Video Generated Successfully!
+                  </div>
+                )}
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   )
