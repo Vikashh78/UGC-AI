@@ -1,7 +1,11 @@
 import { verifyWebhook } from '@clerk/express/webhooks'
-import { prismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
-const prisma = new prismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter });
 
 const clerkWebhooks = async (req, res) => {
     try {
@@ -12,9 +16,8 @@ const clerkWebhooks = async (req, res) => {
 
         // Switch cases for different events
         switch(type) {
-
             case "user.created": {
-                await prisma.user.created({
+                await prisma.user.create({
                     data : {
                         id: data.id,
                         email: data?.email_addresses?.[0]?.email_address,
@@ -32,8 +35,7 @@ const clerkWebhooks = async (req, res) => {
                     },
                     data : {
                         email: data?.email_addresses?.[0]?.email_address,
-                        name: data?.first_name + " " + data?.last_name,
-                        image: data?.image_url
+                        name: `${data?.first_name || ""} ${data?.last_name || ""}`.trim(),
                     }
                 })
                 break;
