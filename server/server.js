@@ -1,8 +1,11 @@
+import './configs/instrument.js'
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import { clerkMiddleware } from '@clerk/express'
 import clerkWebhooks from './controllers/clerk.js'
+import * as Sentry from '@sentry/node'
+import userRouter from './routes/userRoutes.js'
 
 
 const app = express()
@@ -21,6 +24,14 @@ app.get('/', (req, res) => {
     res.send('Server is live')
 })
 
+app.get('/debug-sentry', (req, res) => {
+    throw new Error("My first Sentry error!")
+})
+
+app.use('/api/user', userRouter);
+
+// The error handler must be registered before any other error middleware and after all controllers
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

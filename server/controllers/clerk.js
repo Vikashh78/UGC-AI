@@ -2,6 +2,7 @@ import { verifyWebhook } from '@clerk/express/webhooks'
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
+import * as Sentry from '@sentry/node'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
@@ -9,20 +10,20 @@ const prisma = new PrismaClient({ adapter });
 
 const clerkWebhooks = async (req, res) => {
     try {
-        const event = await verifyWebhook(req)
+        const evt = await verifyWebhook(req)
 
         //Getting data from request
-        const { data, type } = event
+        const { data, type } = evt;
 
         // Switch cases for different events
         switch(type) {
             case "user.created": {
                 await prisma.user.create({
-                    data : {
-                        id: data.id,
+                    data: {
+                        id: data?.id,
                         email: data?.email_addresses?.[0]?.email_address,
                         name: data?.first_name + " " + data?.last_name,
-                        image: data?.image_url
+                        image: data?.image_url,
                     }
                 })
                 break;
@@ -30,12 +31,11 @@ const clerkWebhooks = async (req, res) => {
 
             case "user.updated": {
                 await prisma.user.update({
-                    where: {
-                        id: data.id
-                    },
-                    data : {
+                    where: { id: data?.id },
+                    data: {
                         email: data?.email_addresses?.[0]?.email_address,
-                        name: `${data?.first_name || ""} ${data?.last_name || ""}`.trim(),
+                        name: data?.first_name + " " + data?.last_name,
+                        image: data?.image_url,
                     }
                 })
                 break;
@@ -43,9 +43,7 @@ const clerkWebhooks = async (req, res) => {
 
             case "user.deleted": {
                 await prisma.user.delete({
-                    where: {
-                        id: data.id
-                    }
+                    where: { id: data?.id }
                 })
                 break;
             }
@@ -81,7 +79,11 @@ const clerkWebhooks = async (req, res) => {
         })
         
     } catch (error) {
-        res.status(500).json({success: false, message: error.message})
+        Sentry.captureException(error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }
 

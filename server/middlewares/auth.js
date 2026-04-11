@@ -1,4 +1,4 @@
-
+import * as Sentry from '@sentry/node'
 
 export const protect = async (req, res, next) => {
     try {
@@ -13,6 +13,7 @@ export const protect = async (req, res, next) => {
         next()
 
     } catch (error) {
+        Sentry.captureException(error);
         return res.status(401).json({
                 success: false,
                 message: error.code || error.message
