@@ -1,12 +1,6 @@
 import { verifyWebhook } from '@clerk/express/webhooks'
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
-import * as Sentry from '@sentry/node'
+import { prisma } from '../configs/prisma.js'
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter });
 
 const clerkWebhooks = async (req, res) => {
     try {
